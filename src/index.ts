@@ -14,17 +14,22 @@ program
 
 // Define a command to execute a shell command
 program
-    .command('exec <cmd>')
+    .command('img_clr')
     .description('Execute a shell command')
-    .action(async (cmd) => {
-        console.log(`Executing: ${cmd}`);
+    .option('-d --directory <directory>', 'Directory to list contents')
+    .action(async (str,options) => {
+        console.log(options);
 
-        await listDirectoryContents("./")
-        const shell = spawn(cmd, { shell: true, stdio: 'inherit' });
+        if(options.contains('directory')){
+            console.log(`Directory: ${options.directory}`);
+            await listDirectoryContents("");
+        }
 
-        shell.on('close', (code) => {
-            console.log(`Command exited with code ${code}`);
-        });
+        // const shell = spawn(cmd, { shell: true, stdio: 'inherit' });
+
+        //shell.on('close', (code) => {
+        //    console.log(`Command exited with code ${code}`);
+        //});
     });
 
 // Parse arguments from the command line
