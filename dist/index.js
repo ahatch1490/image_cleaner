@@ -12,10 +12,10 @@ program
     .description('Execute a shell command')
     .option('-d --directory <directory>', 'Directory to list contents')
     .action(async (str, options) => {
-    console.log(options);
-    if (options.contains('directory')) {
+    let directory = options._optionValues.directory;
+    if (directory != null) {
         console.log(`Directory: ${options.directory}`);
-        await listDirectoryContents("");
+        await listDirectoryContents(directory);
     }
     // const shell = spawn(cmd, { shell: true, stdio: 'inherit' });
     //shell.on('close', (code) => {
