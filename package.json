@@ -6,6 +6,9 @@
   "bin": {
     "my-ts-cli": "dist/index.js"
   },
+  "exports": {
+    "./ImageData": "./dist/ImageData.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "ts-node src/index.ts",

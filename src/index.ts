@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 import { spawn } from 'child_process';
 import * as fs from 'fs/promises';
+import { ImageData }  from "./ImageData.js";
 import * as path from 'path';
 
 const program = new Command();
@@ -19,12 +20,15 @@ program
     .option('-d --directory <directory>', 'Directory to list contents')
     .action(async (str,options) => {
         let directory = options._optionValues.directory as string;
-
         if(directory != null){
             console.log(`Directory: ${options.directory}`);
-            await listDirectoryContents(directory);
+            const images = await listDirectoryContents(directory);
+            images.forEach(image => {
+                console.log(`Image: ${image.getFullPath()}`);
+            })
         }
 
+        // const cmd:string = `webpc `
         // const shell = spawn(cmd, { shell: true, stdio: 'inherit' });
 
         //shell.on('close', (code) => {
@@ -38,12 +42,22 @@ program.parse(process.argv);
 
 
 async function listDirectoryContents(dirPath: string) {
+    console.log(`Directory: ${dirPath}`);
+    let images: ImageData[] = [];
     try {
+        const extensions = [".png", ".jpg",".jpeg",".gif"];
         const files = await fs.readdir(dirPath);
-        console.log(`Contents of ${dirPath}:`, files);
+        files.forEach(file => {
+            //console.log(`${dirPath}/${file}`);
+            if (extensions.some( suffix => file.endsWith(suffix) )) {
+                images.push( new ImageData(dirPath,file));
+            }
+        })
+        //console.log(`Contents of ${dirPath}:`, images);
     } catch (error) {
         console.error(`Error reading directory ${dirPath}:`, error);
     }
+    return images;
 }
 
 // Call function

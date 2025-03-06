@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import * as fs from 'fs/promises';
+import { ImageData } from "./ImageData.js";
 const program = new Command();
 program
     .name('my-ts-cli')
@@ -15,8 +16,12 @@ program
     let directory = options._optionValues.directory;
     if (directory != null) {
         console.log(`Directory: ${options.directory}`);
-        await listDirectoryContents(directory);
+        const images = await listDirectoryContents(directory);
+        images.forEach(image => {
+            console.log(`Image: ${image.getFullPath()}`);
+        });
     }
+    // const cmd:string = `webpc `
     // const shell = spawn(cmd, { shell: true, stdio: 'inherit' });
     //shell.on('close', (code) => {
     //    console.log(`Command exited with code ${code}`);
@@ -25,12 +30,22 @@ program
 // Parse arguments from the command line
 program.parse(process.argv);
 async function listDirectoryContents(dirPath) {
+    console.log(`Directory: ${dirPath}`);
+    let images = [];
     try {
+        const extensions = [".png", ".jpg", ".jpeg", ".gif"];
         const files = await fs.readdir(dirPath);
-        console.log(`Contents of ${dirPath}:`, files);
+        files.forEach(file => {
+            //console.log(`${dirPath}/${file}`);
+            if (extensions.some(suffix => file.endsWith(suffix))) {
+                images.push(new ImageData(dirPath, file));
+            }
+        });
+        //console.log(`Contents of ${dirPath}:`, images);
     }
     catch (error) {
         console.error(`Error reading directory ${dirPath}:`, error);
     }
+    return images;
 }
 // Call function
