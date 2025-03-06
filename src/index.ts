@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
+import sharp from "sharp";
 import { spawn } from 'child_process';
 import * as fs from 'fs/promises';
 import { ImageData }  from "./ImageData.js";
@@ -24,16 +25,21 @@ program
             console.log(`Directory: ${options.directory}`);
             const images = await listDirectoryContents(directory);
             images.forEach(image => {
-                console.log(`Image: ${image.getFullPath()}`);
+                console.log(`Image: ${image.getFullPathReplaceExt(".webp")}`);
+                sharp(image.getFullPath()).rotate().toFormat('webp', {quality: 50})
+                    .toFile(image.getFullPathReplaceExt(".webp"));
+
+
+                // console.log(`Image: ${image.getFullPathReplaceExt(".webp")}`);
+                // const cmd:string = `cwebp  ${image.getFullPath()} -o ${image.getFullPathReplaceExt(".webp")}`;
+                // const shell = spawn(cmd, { shell: true, stdio: 'inherit' });
+                // shell.on('close', (code) => {
+                //     console.log(`Command exited with code ${code}`);
+                // });
             })
         }
 
-        // const cmd:string = `webpc `
-        // const shell = spawn(cmd, { shell: true, stdio: 'inherit' });
 
-        //shell.on('close', (code) => {
-        //    console.log(`Command exited with code ${code}`);
-        //});
     });
 
 // Parse arguments from the command line
@@ -48,12 +54,11 @@ async function listDirectoryContents(dirPath: string) {
         const extensions = [".png", ".jpg",".jpeg",".gif"];
         const files = await fs.readdir(dirPath);
         files.forEach(file => {
-            //console.log(`${dirPath}/${file}`);
             if (extensions.some( suffix => file.endsWith(suffix) )) {
                 images.push( new ImageData(dirPath,file));
             }
         })
-        //console.log(`Contents of ${dirPath}:`, images);
+
     } catch (error) {
         console.error(`Error reading directory ${dirPath}:`, error);
     }
